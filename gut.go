@@ -1,4 +1,4 @@
-package main
+package gut
 
 import (
 	"bytes"
@@ -9,13 +9,9 @@ import (
 	"net"
 	"os"
 	"time"
-
-	"github.com/k0kubun/pp"
 )
 
 var endian = binary.LittleEndian
-
-//var endian = binary.BigEndian
 
 type UdpHeader struct {
 	Type  byte
@@ -190,7 +186,7 @@ func client() {
 	buf = bytes.NewBuffer(bs[:n])
 	binary.Read(buf, endian, &accept)
 
-	pp.Println(accept)
+	//pp.Println(accept)
 
 	token := accept.NewToken
 	//token := accept.Token
@@ -224,7 +220,7 @@ func client() {
 				log.Printf("reading: %v", bs)
 				binary.Read(buf, endian, &data)
 				log.Println("data start")
-				pp.Println(data)
+				//pp.Println(data)
 				log.Println("data end")
 			}
 		case 5: // Ping
@@ -377,7 +373,7 @@ var RECV_TOKEN uint64
 var SEND_TOKEN uint64
 var guestAddr *net.UDPAddr
 
-func server() {
+func Server() {
 	udpAddr := &net.UDPAddr{
 		IP:   net.ParseIP("127.0.0.1"),
 		Port: 9000,
@@ -405,8 +401,6 @@ func server() {
 		}()
 	*/
 
-	//endian := binary.BigEndian
-	//endian := binary.LittleEndian
 	for {
 		n, addr, err := conn.ReadFromUDP(buf)
 		if err != nil {
@@ -432,39 +426,5 @@ func server() {
 			//conn.WriteTo([]byte("Pong"), addr)
 			//log.Printf("Complete Sending data..")
 		}
-	}
-}
-
-func main() {
-	if len(os.Args) == 1 {
-
-		/**
-		a := ConnectRequest{
-			Type:           1,
-			Flags:          1,
-			SessionIdToken: 1,
-		}
-
-		pp.Println(a)
-
-		b := ConnectAccept{}
-		pp.Println(b)
-
-		c := Data{
-			Type:           1,
-			Flags:          1,
-			SessionIdToken: 1,
-			Payload:        []byte{0, 1, 2, 3, 4, 5, 6, 7},
-		}
-		pp.Println(c)
-		*/
-		return
-	}
-
-	arg := os.Args[1]
-	if arg == "server" {
-		server()
-	} else {
-		client()
 	}
 }

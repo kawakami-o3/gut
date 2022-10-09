@@ -3,14 +3,10 @@ package main
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"math/rand"
 	"net"
 	"os"
-	"time"
-
-	"github.com/k0kubun/pp"
 )
 
 var endian = binary.LittleEndian
@@ -84,7 +80,6 @@ func recvPong(conn net.Conn) {
 	binary.Read(buf, endian, &pong)
 	//log.Println("RECV pong: %v %v", n, pong)
 }
-
 
 const (
 	ConnectionRequestType = iota
