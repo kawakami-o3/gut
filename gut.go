@@ -148,7 +148,7 @@ func recvPong(conn net.Conn) {
 	//log.Println("RECV pong: %v %v", n, pong)
 }
 
-func client() {
+func Client() {
 	conn, err := net.Dial("udp", "127.0.0.1:9000")
 	if err != nil {
 		log.Fatalln(err)
