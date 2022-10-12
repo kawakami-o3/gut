@@ -179,14 +179,12 @@ func Client() {
 		os.Exit(1)
 	}
 
-	//log.Printf("Received data: %s", string(recvBuf[:n]))
 	log.Printf("Recv data: %v", bs[:n])
 
 	var accept ConnectAccept
 	buf = bytes.NewBuffer(bs[:n])
 	binary.Read(buf, endian, &accept)
 
-	//pp.Println(accept)
 
 	token := accept.NewToken
 	//token := accept.Token
@@ -244,23 +242,6 @@ func Client() {
 	*/
 
 }
-
-/*
-type Header struct {
-	Type           byte
-	Flags          byte
-	SessionIdToken uint8
-}
-
-type ConnectRequest struct {
-	UnityTransportHeader
-}
-
-type ConnectRequest struct {
-	UnityTransportHeader
-	NewSessionIdToken uint8
-}
-*/
 
 const (
 	ConnectionRequestType = iota
