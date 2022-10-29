@@ -42,8 +42,6 @@ type Pong struct {
 }
 
 func clientSendPing(conn net.Conn, token uint64) {
-	//log.Println("====== start: send ping")
-
 	buf := new(bytes.Buffer)
 
 	var ping Ping
@@ -58,11 +56,9 @@ func clientSendPing(conn net.Conn, token uint64) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	//log.Printf("SEND ping: %v", n)
 }
 
 func clientSendPong(conn net.Conn, token uint64) {
-	//log.Println("====== start: send pong")
 	buf := new(bytes.Buffer)
 
 	var pong Pong
@@ -77,7 +73,6 @@ func clientSendPong(conn net.Conn, token uint64) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	//log.Printf("SEND pong: %v", n)
 }
 
 func clientSendData(conn net.Conn, token uint64) {
@@ -97,29 +92,24 @@ func clientSendData(conn net.Conn, token uint64) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	log.Printf("SEND data: %v", buf.Bytes())
 	n, err = conn.Write(buf.Bytes())
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	log.Printf("END data: %v", n)
 }
 
 func recvAny(conn net.Conn) []byte {
-	//log.Println("====== start: recv ANY")
 	bs := make([]byte, 256)
 	n, err := conn.Read(bs)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	//log.Printf("Recd data: %v", bs[:n])
 	return bs[:n]
 }
 
 func recvPing(conn net.Conn) {
-	log.Println("====== start: recv ping")
 	bs := make([]byte, 16)
 	var ping Ping
 	n, err := conn.Read(bs)
@@ -127,14 +117,11 @@ func recvPing(conn net.Conn) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	//log.Printf("Recd data: %v", bs[:n])
 	buf := bytes.NewBuffer(bs[:n])
 	binary.Read(buf, endian, &ping)
-	//log.Println("RECV pong: %v %v", n, ping)
 }
 
 func recvPong(conn net.Conn) {
-	log.Println("====== start: recv pong")
 	bs := make([]byte, 16)
 	var pong Pong
 	n, err := conn.Read(bs)
@@ -142,10 +129,8 @@ func recvPong(conn net.Conn) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	//log.Printf("Recd data: %v", bs[:n])
 	buf := bytes.NewBuffer(bs[:n])
 	binary.Read(buf, endian, &pong)
-	//log.Println("RECV pong: %v %v", n, pong)
 }
 
 func Client() {
@@ -164,7 +149,6 @@ func Client() {
 	buf := new(bytes.Buffer)
 	err = binary.Write(buf, endian, request)
 
-	fmt.Println(buf.Bytes())
 	n, err := conn.Write(buf.Bytes())
 	if err != nil {
 		log.Fatalln(err)
@@ -179,16 +163,12 @@ func Client() {
 		os.Exit(1)
 	}
 
-	log.Printf("Recv data: %v", bs[:n])
-
 	var accept ConnectAccept
 	buf = bytes.NewBuffer(bs[:n])
 	binary.Read(buf, endian, &accept)
 
 
 	token := accept.NewToken
-	//token := accept.Token
-	log.Printf("token: %v", token)
 
 	// Ping
 	//go func(conn net.Conn, token uint64) {
@@ -215,18 +195,14 @@ func Client() {
 			{
 				var data UdpData
 				buf := bytes.NewBuffer(bs)
-				log.Printf("reading: %v", bs)
 				binary.Read(buf, endian, &data)
-				log.Println("data start")
-				//pp.Println(data)
-				log.Println("data end")
 			}
 		case 5: // Ping
 			clientSendPong(conn, token)
 		case 6: // Pong
-			log.Printf("PONG: %v", bs)
+			//log.Printf("PONG: %v", bs)
 		default:
-			log.Printf("RECV: %v", bs)
+			//log.Printf("RECV: %v", bs)
 		}
 	}
 
@@ -275,14 +251,10 @@ func sendAccept(conn *net.UDPConn, addr *net.UDPAddr, bs []byte) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	log.Printf("send size: %v", n)
-
 	guestAddr = addr
 }
 
 func sendData(conn *net.UDPConn, addr *net.UDPAddr, bs []byte) {
-	log.Printf("recv bytes: %v", bs)
-
 	var udpData UdpData
 	buf := bytes.NewBuffer(bs)
 	binary.Read(buf, endian, &udpData)
@@ -298,25 +270,15 @@ func sendData(conn *net.UDPConn, addr *net.UDPAddr, bs []byte) {
 	binary.Write(buf, endian, response)
 
 	bout := buf.Bytes()
-	log.Printf("send bytes: %v", bout)
 	n, err := conn.WriteTo(bout, addr)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	log.Printf("send size: %v", n)
-
 	guestAddr = addr
 }
 
 func sendPing(conn *net.UDPConn, addr *net.UDPAddr) {
-	log.Println("=== start ping")
-	//conn, err := net.DialUDP("udp", nil, addr)
-	//if err != nil {
-	//	log.Fatalln(err)
-	//	os.Exit(1)
-	//}
-
 	var ping Ping
 	ping.Type = 5
 	ping.Flags = 0
@@ -329,12 +291,9 @@ func sendPing(conn *net.UDPConn, addr *net.UDPAddr) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	log.Printf("=== end ping %v", n)
 }
 
 func sendPong(conn *net.UDPConn, addr *net.UDPAddr) {
-	log.Println("=== start pong")
-
 	var ping Ping
 	ping.Type = 6
 	ping.Flags = 0
@@ -347,7 +306,6 @@ func sendPong(conn *net.UDPConn, addr *net.UDPAddr) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	log.Printf("=== end pong %v", n)
 }
 
 var RECV_TOKEN uint64
@@ -367,8 +325,6 @@ func Server() {
 	}
 
 	buf := make([]byte, 1024)
-	log.Println("Starting udp server...")
-
 	/*
 		go func() {
 			for {
@@ -397,15 +353,9 @@ func Server() {
 		case PingType:
 			sendPong(conn, addr)
 		default:
-			//log.Printf("Reciving data: %s from %s", string(buf[:n]), addr.String())
-			log.Printf("default Recv data: from %s", addr.String())
-			for _, i := range buf[:n] {
-				log.Printf("data: %v", i)
-			}
-
-			//log.Printf("Sending data..")
-			//conn.WriteTo([]byte("Pong"), addr)
-			//log.Printf("Complete Sending data..")
+			//for _, i := range buf[:n] {
+			//	log.Printf("data: %v", i)
+			//}
 		}
 	}
 }
