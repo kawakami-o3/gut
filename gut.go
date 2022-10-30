@@ -3,7 +3,6 @@ package gut
 import (
 	"bytes"
 	"encoding/binary"
-	"fmt"
 	"log"
 	"math/rand"
 	"net"
@@ -76,7 +75,6 @@ func clientSendPong(conn net.Conn, token uint64) {
 }
 
 func clientSendData(conn net.Conn, token uint64) {
-	var n int
 	var err error
 	var data UdpData
 	data.Type = 4
@@ -92,7 +90,7 @@ func clientSendData(conn net.Conn, token uint64) {
 		log.Fatalln(err)
 		os.Exit(1)
 	}
-	n, err = conn.Write(buf.Bytes())
+	_, err = conn.Write(buf.Bytes())
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
@@ -166,7 +164,6 @@ func Client() {
 	var accept ConnectAccept
 	buf = bytes.NewBuffer(bs[:n])
 	binary.Read(buf, endian, &accept)
-
 
 	token := accept.NewToken
 
@@ -246,7 +243,7 @@ func sendAccept(conn *net.UDPConn, addr *net.UDPAddr, bs []byte) {
 	binary.Write(buf, endian, accept)
 
 	bout := buf.Bytes()
-	n, err := conn.WriteTo(bout, addr)
+	_, err := conn.WriteTo(bout, addr)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
@@ -270,7 +267,7 @@ func sendData(conn *net.UDPConn, addr *net.UDPAddr, bs []byte) {
 	binary.Write(buf, endian, response)
 
 	bout := buf.Bytes()
-	n, err := conn.WriteTo(bout, addr)
+	_, err := conn.WriteTo(bout, addr)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
@@ -286,7 +283,7 @@ func sendPing(conn *net.UDPConn, addr *net.UDPAddr) {
 
 	buf := new(bytes.Buffer)
 	binary.Write(buf, endian, ping)
-	n, err := conn.WriteTo(buf.Bytes(), addr)
+	_, err := conn.WriteTo(buf.Bytes(), addr)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
@@ -301,7 +298,7 @@ func sendPong(conn *net.UDPConn, addr *net.UDPAddr) {
 
 	buf := new(bytes.Buffer)
 	binary.Write(buf, endian, ping)
-	n, err := conn.WriteTo(buf.Bytes(), addr)
+	_, err := conn.WriteTo(buf.Bytes(), addr)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
@@ -312,12 +309,12 @@ var RECV_TOKEN uint64
 var SEND_TOKEN uint64
 var guestAddr *net.UDPAddr
 
-func Server() {
-	udpAddr := &net.UDPAddr{
-		IP:   net.ParseIP("127.0.0.1"),
-		Port: 9000,
-	}
-	conn, err := net.ListenUDP("udp", udpAddr) // UDPConn
+type Server struct {
+	udpAddr *net.UDPAddr
+}
+
+func (s *Server) Run() {
+	conn, err := net.ListenUDP("udp", s.udpAddr) // UDPConn
 
 	if err != nil {
 		log.Fatalln(err)
