@@ -131,8 +131,13 @@ func recvPong(conn net.Conn) {
 	binary.Read(buf, endian, &pong)
 }
 
-func Client() {
-	conn, err := net.Dial("udp", "127.0.0.1:9000")
+type Client struct {
+	Address string
+}
+
+func (c *Client) Run() {
+	//conn, err := net.Dial("udp", "127.0.0.1:9000")
+	conn, err := net.Dial("udp", c.Address)
 	if err != nil {
 		log.Fatalln(err)
 		os.Exit(1)
